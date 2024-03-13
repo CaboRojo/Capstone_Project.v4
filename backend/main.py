@@ -15,6 +15,7 @@ from models import db, initialize_database, Users, Portfolios, PortfolioDetails,
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from flask.views import MethodView
 from sqlalchemy.orm import joinedload
+import AlphaVantageAPI
 
 oracledb.init_oracle_client(lib_dir=r"C:\\Program Files\\Oracle\\instanclient-basic-windows.x64-21.13.0.0.0dbru\\instantclient_21_13")
 
@@ -34,3 +35,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 initialize_database(app)
 
 ALPHA_VANTAGE_API_KEY = "ZBD3QIPITMQNSPPF"
+
+alpha_vantage_api = AlphaVantageAPI(ALPHA_VANTAGE_API_KEY)
+
