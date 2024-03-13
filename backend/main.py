@@ -38,3 +38,9 @@ ALPHA_VANTAGE_API_KEY = "ZBD3QIPITMQNSPPF"
 
 alpha_vantage_api = AlphaVantageAPI(ALPHA_VANTAGE_API_KEY)
 
+def hash_password(plain_text_password):
+    return bcrypt.hashpw(plain_text_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+def is_password_valid(password):
+    return len(password) >= 8 and re.search("[a-z]", password) and re.search("[A-Z]", password) and re.search("[0-9]", password) and re.search("[!@#$%^&*(),.?\":{}|<>]", password)
+
