@@ -44,3 +44,51 @@ def hash_password(plain_text_password):
 def is_password_valid(password):
     return len(password) >= 8 and re.search("[a-z]", password) and re.search("[A-Z]", password) and re.search("[0-9]", password) and re.search("[!@#$%^&*(),.?\":{}|<>]", password)
 
+
+# Define a route for handling registration requests
+@app.route('/handle_register', methods=['POST'])
+def api_register_user():
+    # Extract data from the incoming request
+    data = request.json
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
+    email = data.get('email')
+    password = data.get('password')
+
+    # Validate the provided password against your criteria (not shown in this snippet)
+    if not is_password_valid(password):
+        # If the password does not meet your criteria, return a 400 error
+        return jsonify({"error": "Password does not meet the security criteria."}), 400
+
+    # Check if a user with the provided email already exists
+    existing_user = Users.query.filter_by(email=email).first()
+    if existing_user:
+        # If a user with this email already exists, return a 409 conflict error
+        return jsonify({"error": "Email already exists."}), 409
+
+    # Hash the provided password for secure storage
+    password_hash = hash_password(password)
+
+    # Create a new user instance with the provided and processed data
+    new_user = Users(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        password_hash=password_hash
+    )
+
+    try:
+        # Attempt to add the new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+        # If successful, return a message indicating successful registration along with the new user's ID
+        return jsonify({"message": "User registered successfully.", "user_id": new_user.user_id}), 201
+    except IntegrityError:
+        # If an integrity error occurs (e.g., duplicate username or email not caught by earlier checks), roll back the transaction
+        db.session.rollback()
+        return jsonify({"error": "Username or email already exists."}), 409
+    except Exception as e:
+        # For any other exceptions, log the error, roll back the transaction, and return a 500 internal server error
+        db.session.rollback()
+        logging.error("Error registering user: %s", e)
+        return jsonify({"error": "Error registering user."}), 500
