@@ -15,7 +15,7 @@ from models import db, initialize_database, Users, Portfolios, PortfolioDetails,
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from flask.views import MethodView
 from sqlalchemy.orm import joinedload
-import AlphaVantageAPI
+from alpha_vantage import AlphaVantageAPI
 
 oracledb.init_oracle_client(lib_dir=r"C:\\Program Files\\Oracle\\instanclient-basic-windows.x64-21.13.0.0.0dbru\\instantclient_21_13")
 
