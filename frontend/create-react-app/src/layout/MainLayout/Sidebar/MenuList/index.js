@@ -1,27 +1,27 @@
-// material-ui
-import { Typography } from '@mui/material';
+// MenuList/index.js
+import React from 'react';
+import List from '@mui/material/List';
+import NavItem from './NavItem';
+import Typography from '@mui/material/Typography';
 
-// project imports
-import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
-
-// ==============================|| SIDEBAR MENU LIST ||============================== //
+// Add imports for your icons
+import DashboardIcon from '@mui/icons-material/Dashboard';
+// ... other icons
 
 const MenuList = () => {
-  const navItems = menuItem.items.map((item) => {
-    switch (item.type) {
-      case 'group':
-        return <NavGroup key={item.id} item={item} />;
-      default:
-        return (
-          <Typography key={item.id} variant="h6" color="error" align="center">
-            Menu Items Error
-          </Typography>
-        );
-    }
-  });
-
-  return <>{navItems}</>;
+  return (
+    <List>
+      <Typography variant="h6" sx={{ px: 2, py: 1 }}>Portfolio</Typography>
+      <NavItem
+        level={1}
+        title="Portfolio Overview"
+        href="/dashboard/default"
+        icon={<DashboardIcon />}
+      />
+      {/* Remove NavItem for Asset Details */}
+      {/* Other NavItems as needed */}
+    </List>
+  );
 };
 
 export default MenuList;

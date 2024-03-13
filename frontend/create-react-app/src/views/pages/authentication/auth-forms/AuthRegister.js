@@ -1,25 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
-  Box,
-  Button,
-  Checkbox,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  TextField,
-  Typography,
-  useMediaQuery
+    Box,
+    Button,
+    Checkbox,
+    Divider,
+    FormControl,
+    FormControlLabel,
+    FormHelperText,
+    Grid,
+    IconButton,
+    InputAdornment,
+    InputLabel,
+    OutlinedInput,
+    TextField,
+    Typography,
+    useMediaQuery
 } from '@mui/material';
 
 // third party
@@ -27,50 +28,49 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useScriptRef from 'hooks/useScriptRef';
-import Google from 'assets/images/icons/social-google.svg';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 import { strengthColor, strengthIndicator } from 'utils/password-strength';
 
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Google from 'assets/images/icons/social-google.svg';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const FirebaseRegister = ({ ...others }) => {
-  const theme = useTheme();
-  const scriptedRef = useScriptRef();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
-  const customization = useSelector((state) => state.customization);
-  const [showPassword, setShowPassword] = useState(false);
-  const [checked, setChecked] = useState(true);
+    const navigate = useNavigate();
+    const theme = useTheme();
+    const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
+    const customization = useSelector((state) => state.customization);
+    const [showPassword, setShowPassword] = useState(false);
+    const [checked, setChecked] = useState(true);
 
-  const [strength, setStrength] = useState(0);
-  const [level, setLevel] = useState();
+    const [strength, setStrength] = useState(0);
+    const [level, setLevel] = useState();
 
-  const googleHandler = async () => {
-    console.error('Register');
-  };
+    const googleHandler = async () => {
+        console.error('Register');
+    };
 
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
 
-  const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+    const handleMouseDownPassword = (event) => {
+        event.preventDefault();
+    };
 
-  const changePassword = (value) => {
-    const temp = strengthIndicator(value);
-    setStrength(temp);
-    setLevel(strengthColor(temp));
-  };
+    const changePassword = (value) => {
+        const temp = strengthIndicator(value);
+        setStrength(temp);
+        setLevel(strengthColor(temp));
+    };
 
-  useEffect(() => {
-    changePassword('123456');
-  }, []);
-
+    useEffect(() => {
+        changePassword('123456');
+    }, []);
+    
   return (
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
@@ -125,31 +125,47 @@ const FirebaseRegister = ({ ...others }) => {
       </Grid>
 
       <Formik
-        initialValues={{
-          email: '',
-          password: '',
-          submit: null
-        }}
-        validationSchema={Yup.object().shape({
-          email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
-        })}
-        onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
-          try {
-            if (scriptedRef.current) {
-              setStatus({ success: true });
+            initialValues={{
+                email: '',
+                username: '',
+                password: '',
+                submit: null
+            }}
+            validationSchema={Yup.object().shape({
+                email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+                username: Yup.string().max(255).required('Username is required'),
+                password: Yup.string().max(255).required('Password is required')
+            })}
+            onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+              try {
+                const response = await fetch('http://localhost:5000/handle_register', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    username: values.username,
+                    email: values.email,
+                    password: values.password
+                  })
+                });
+            
+                if (response.ok) {
+                  navigate('/login'); // Redirect to login page after successful registration
+                  setStatus({ success: true });
+                } else {
+                  const errorData = await response.json();
+                  setErrors({ submit: errorData.error || 'Registration failed. Please try again.' });
+                  setStatus({ success: false });
+                }
+              } catch (error) {
+                console.error('Registration error:', error);
+                setErrors({ submit: 'Registration failed. Please try again.' });
+                setStatus({ success: false });
+              }
               setSubmitting(false);
-            }
-          } catch (err) {
-            console.error(err);
-            if (scriptedRef.current) {
-              setStatus({ success: false });
-              setErrors({ submit: err.message });
-              setSubmitting(false);
-            }
-          }
-        }}
-      >
+            }}
+        >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
           <form noValidate onSubmit={handleSubmit} {...others}>
             <Grid container spacing={matchDownSM ? 0 : 2}>
@@ -276,6 +292,11 @@ const FirebaseRegister = ({ ...others }) => {
                 </Button>
               </AnimateButton>
             </Box>
+            {status && status.success === false && (
+              <Box sx={{ mt: 3 }}>
+                <FormHelperText error>{status.message || "Registration failed. Please try again."}</FormHelperText>
+              </Box>
+            )}
           </form>
         )}
       </Formik>

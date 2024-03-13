@@ -1,91 +1,47 @@
-import { lazy } from 'react';
+import React, { lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
 
-// project imports
-import MainLayout from 'layout/MainLayout';
+// Loadable utility to dynamically load components with loading fallbacks
 import Loadable from 'ui-component/Loadable';
 
-// dashboard routing
+// Dynamic imports for components
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
-
-// utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
 const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
 const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
 const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
-
-// sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const AssetDetailsPage = Loadable(lazy(() => import('views/details')));
 
-// ==============================|| MAIN ROUTING ||============================== //
+// Authentication pages
+const Login3 = Loadable(lazy(() => import('views/pages/authentication/authentication3/Login3')));
+const Register3 = Loadable(lazy(() => import('views/pages/authentication/authentication3/Register3')));
 
-const MainRoutes = {
-  path: '/',
-  element: <MainLayout />,
-  children: [
-    {
-      path: '/',
-      element: <DashboardDefault />
-    },
-    {
-      path: 'dashboard',
-      children: [
-        {
-          path: 'default',
-          element: <DashboardDefault />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-typography',
-          element: <UtilsTypography />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-color',
-          element: <UtilsColor />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-shadow',
-          element: <UtilsShadow />
-        }
-      ]
-    },
-    {
-      path: 'icons',
-      children: [
-        {
-          path: 'tabler-icons',
-          element: <UtilsTablerIcons />
-        }
-      ]
-    },
-    {
-      path: 'icons',
-      children: [
-        {
-          path: 'material-icons',
-          element: <UtilsMaterialIcons />
-        }
-      ]
-    },
-    {
-      path: 'sample-page',
-      element: <SamplePage />
-    }
-  ]
-};
+// Layout components
+const MainLayout = Loadable(lazy(() => import('layout/MainLayout')));
+
+// Authentication check function
+const isAuthenticated = () => !!localStorage.getItem('token');
+
+// Main Routes Component
+const MainRoutes = () => (
+  <Routes>
+    <Route path="/" element={<MainLayout />}>
+      <Route index element={isAuthenticated() ? <DashboardDefault /> : <Login3 />} />
+      <Route path="dashboard/default" element={<DashboardDefault />} />
+      <Route path="utils/typography" element={<UtilsTypography />} />
+      <Route path="utils/color" element={<UtilsColor />} />
+      <Route path="utils/shadow" element={<UtilsShadow />} />
+      <Route path="icons/material-icons" element={<UtilsMaterialIcons />} />
+      <Route path="icons/tabler-icons" element={<UtilsTablerIcons />} />
+      <Route path="sample-page" element={<SamplePage />} />
+      <Route path="details/:symbol" element={<AssetDetailsPage />} />
+      {/* The login and register routes are nested within MainLayout */}
+      <Route path="login" element={<Login3 />} />
+      <Route path="register" element={<Register3 />} />
+    </Route>
+  </Routes>
+);
 
 export default MainRoutes;

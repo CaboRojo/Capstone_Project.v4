@@ -26,7 +26,6 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useScriptRef from 'hooks/useScriptRef';
 import AnimateButton from 'ui-component/extended/AnimateButton';
 
 // assets
@@ -35,20 +34,24 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Google from 'assets/images/icons/social-google.svg';
 
+// react-router-dom
+import { useNavigate } from 'react-router-dom';
+
 // ============================|| FIREBASE - LOGIN ||============================ //
 
 const FirebaseLogin = ({ ...others }) => {
   const theme = useTheme();
-  const scriptedRef = useScriptRef();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const customization = useSelector((state) => state.customization);
   const [checked, setChecked] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate(); // hook for navigation
 
   const googleHandler = async () => {
     console.error('Login');
   };
 
-  const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -56,7 +59,7 @@ const FirebaseLogin = ({ ...others }) => {
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
-
+  
   return (
     <>
       <Grid container direction="column" justifyContent="center" spacing={2}>
@@ -120,8 +123,8 @@ const FirebaseLogin = ({ ...others }) => {
 
       <Formik
         initialValues={{
-          email: 'info@codedthemes.com',
-          password: '123456',
+          email: '',
+          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -130,18 +133,34 @@ const FirebaseLogin = ({ ...others }) => {
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
-            if (scriptedRef.current) {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/handle_login`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: values.email,
+                password: values.password
+              })
+            });
+        
+            if (response.ok) {
+              const data = await response.json();
+              localStorage.setItem('token', data.token); // Token is saved
+              localStorage.setItem('userId', data.userId); // Save the User ID here similarly, adjust 'data.userId' based on your API response
               setStatus({ success: true });
-              setSubmitting(false);
-            }
-          } catch (err) {
-            console.error(err);
-            if (scriptedRef.current) {
+              navigate('/dashboard/default'); // Redirect to dashboard
+            } else {
+              const errorData = await response.json();
+              setErrors({ submit: errorData.error || 'Login failed. Please try again.' });
               setStatus({ success: false });
-              setErrors({ submit: err.message });
-              setSubmitting(false);
             }
+          } catch (error) {
+            console.error('Login error:', error);
+            setErrors({ submit: 'Login failed. Please try again.' });
+            setStatus({ success: false });
           }
+          setSubmitting(false);
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
@@ -220,6 +239,11 @@ const FirebaseLogin = ({ ...others }) => {
                 </Button>
               </AnimateButton>
             </Box>
+            {status && status.success === false && (
+              <Box sx={{ mt: 3 }}>
+                <FormHelperText error>{status.message || "Login failed. Please try again."}</FormHelperText>
+              </Box>
+            )}
           </form>
         )}
       </Formik>

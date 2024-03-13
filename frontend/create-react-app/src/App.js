@@ -1,29 +1,18 @@
-import { useSelector } from 'react-redux';
+import React from 'react';
+import { ThemeProvider, StyledEngineProvider, CssBaseline } from '@mui/material';
+import { theme as getTheme } from './themes'; // Ensure this import path is correct
+import MainRoutes from './routes/MainRoutes'; // Ensure this path matches your file structure
 
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, StyledEngineProvider } from '@mui/material';
-
-// routing
-import Routes from 'routes';
-
-// defaultTheme
-import themes from 'themes';
-
-// project imports
-import NavigationScroll from 'layout/NavigationScroll';
-
-// ==============================|| APP ||============================== //
+// Assuming customization is needed; if not, this could be an empty object or tailored to your needs
+const customization = {}; // Define any customization options here
+const theme = getTheme(customization); // Generate the theme using your dynamic setup
 
 const App = () => {
-  const customization = useSelector((state) => state.customization);
-
   return (
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={themes(customization)}>
+      <ThemeProvider theme={theme}> {/* Apply the generated theme */}
         <CssBaseline />
-        <NavigationScroll>
-          <Routes />
-        </NavigationScroll>
+        <MainRoutes />
       </ThemeProvider>
     </StyledEngineProvider>
   );
