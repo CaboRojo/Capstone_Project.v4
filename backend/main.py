@@ -15,3 +15,12 @@ from models import db, initialize_database, Users, Portfolios, PortfolioDetails,
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from flask.views import MethodView
 from sqlalchemy.orm import joinedload
+
+oracledb.init_oracle_client(lib_dir=r"C:\\Program Files\\Oracle\\instanclient-basic-windows.x64-21.13.0.0.0dbru\\instantclient_21_13")
+
+
+un = 'DEVELOPER'
+pw = 'AngeleeRiosRamon1999!'  # Replace with your actual password
+dsn = "(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.eu-madrid-1.oraclecloud.com))(connect_data=(service_name=gd51c296542b64f_projectdb22023_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))"# Replace with your actual DSN
+
+DATABASE_API_URL = "https://gd51c296542b64f-projectdb22023.adb.eu-madrid-1.oraclecloudapps.com/ords/"
