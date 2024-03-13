@@ -92,3 +92,37 @@ def api_register_user():
         db.session.rollback()
         logging.error("Error registering user: %s", e)
         return jsonify({"error": "Error registering user."}), 500
+
+# Define a route for handling login requests
+@app.route('/handle_login', methods=['POST'])
+def login_user():
+    # Extract email and password from the incoming JSON request
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    try:
+        # Query the database for a user with the given email
+        user = Users.query.filter_by(email=email).first()
+
+        # If a user is found and the password matches the one stored in the database
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
+            # Create a JWT token for the user, including the user_id and expiration time (24 hours in this example)
+            token = jwt.encode({
+                'user_id': user.user_id,
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, JWT_SECRET_KEY, algorithm='HS256')
+
+            # Return the token to the client
+            return jsonify({'token': token}), 200
+        else:
+            # If the email is not found or the password does not match, return an error
+            return jsonify({'error': 'Invalid email or password'}), 401
+    except Exception as e:
+        # Log any exceptions that occur during the process
+        logging.error("Error during login: %s", e)
+        # Return a generic error message if an unexpected error occurs
+        return jsonify({'error': 'An error occurred during login.'}), 500
+
+
+
