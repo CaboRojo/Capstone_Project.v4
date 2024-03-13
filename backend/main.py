@@ -30,3 +30,7 @@ CORS(app)
 logging.basicConfig(level=logging.DEBUG)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'oracle+cx_oracle://{un}:{pw}@{dsn}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+initialize_database(app)
+
+ALPHA_VANTAGE_API_KEY = "ZBD3QIPITMQNSPPF"
