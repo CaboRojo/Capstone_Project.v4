@@ -24,3 +24,9 @@ pw = 'AngeleeRiosRamon1999!'  # Replace with your actual password
 dsn = "(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.eu-madrid-1.oraclecloud.com))(connect_data=(service_name=gd51c296542b64f_projectdb22023_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))"# Replace with your actual DSN
 
 DATABASE_API_URL = "https://gd51c296542b64f-projectdb22023.adb.eu-madrid-1.oraclecloudapps.com/ords/"
+
+app = Flask(__name__)
+CORS(app)
+logging.basicConfig(level=logging.DEBUG)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'oracle+cx_oracle://{un}:{pw}@{dsn}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
